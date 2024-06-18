@@ -3,7 +3,6 @@ package ru.anime.aseller.GUIMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,6 +16,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import ru.anime.aseller.ASeller;
 import ru.anime.aseller.utils.Hex;
+import ru.anime.aseller.utils.UtilSlots;
 
 import java.util.*;
 import static ru.anime.aseller.utils.Hex.setPlaceholders;
@@ -70,9 +70,12 @@ public class MainMenu implements Listener {
                         checkInventory(player, clickedInventory);
                     }, 1L); // Задержка в 1 тик
                 }
-                if (slot >= 45 && slot <= 53) {
-                    event.setCancelled(true); // Отменяем событие, чтобы предметы нельзя было взять из указанных слотов
-                    player.updateInventory(); // Обновляем инвентарь игрока, чтобы предметы не отображались неправильно
+
+                for (Integer item : UtilSlots.noActiveListSlots) {
+                    if (Objects.equals(slot, item)){
+                        event.setCancelled(true); // Отменяем событие, если в эти слоты пытаются перетащить предметы
+                        player.updateInventory(); // Обновляем инвентарь игрока, чтобы предметы не отображались неправильно
+                    }
                 }
                 if (slot == ASeller.getCfg().getInt("position_button_sell")) {
                     if (pay_count.get(player.getUniqueId()) > 0){
@@ -86,7 +89,7 @@ public class MainMenu implements Listener {
         }
     }
     public void sellItem(Player player, Inventory inventory){
-        for (int slot = 0; slot <= 44; slot++) {
+        for (Integer slot : UtilSlots.activeListSlots) {
             ItemStack item = inventory.getItem(slot);
 
             if (item != null && item.getType() != Material.AIR) {
@@ -111,7 +114,7 @@ public class MainMenu implements Listener {
                 }, 1L); // Задержка в 1 тик
             }
             for (Integer slot : event.getRawSlots()) {
-                if (slot >= 45 && slot <= 53) {
+                if (UtilSlots.noActiveListSlots.contains(slot)) {
                     event.setCancelled(true); // Отменяем событие, если в эти слоты пытаются перетащить предметы
                     return;
                 }
@@ -136,7 +139,7 @@ public class MainMenu implements Listener {
 
     private void returnItemsToPlayerOrDrop(Player player, Inventory inventory) {
         // Проходимся по слотам с 0 по 44
-        for (int slot = 0; slot < 45; slot++) {
+        for (Integer slot : UtilSlots.activeListSlots) {
             ItemStack item = inventory.getItem(slot);
             if (item != null) {
                 // Проверяем, есть ли место в инвентаре игрока
@@ -159,7 +162,7 @@ public class MainMenu implements Listener {
          Map<String, Object> test = ASeller.getCfg().getConfigurationSection("priseItem").getValues(false);
         test.forEach((key, value) -> count_material.put(Material.getMaterial(key), (Double) value));
 
-        for (int slot = 0; slot <= 44; slot++) {
+        for (Integer slot : UtilSlots.activeListSlots) {
             ItemStack item = inventory.getItem(slot);
 
             if (item != null && item.getType() != Material.AIR) {

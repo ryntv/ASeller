@@ -4,3 +4,4 @@ ru\anime\aseller\ASeller.class
 ru\anime\aseller\commands\Seller.class
 ru\anime\aseller\utils\ASellerPlaceholder.class
 ru\anime\aseller\utils\Hex.class
+ru\anime\aseller\utils\UtilSlots.class

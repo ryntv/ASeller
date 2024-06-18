@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import ru.anime.aseller.GUIMenu.MainMenu;
 import ru.anime.aseller.commands.Seller;
 import ru.anime.aseller.utils.ASellerPlaceholder;
+import ru.anime.aseller.utils.UtilSlots;
 
 public final class ASeller extends JavaPlugin {
     private static ASeller instance;
@@ -38,6 +39,8 @@ public final class ASeller extends JavaPlugin {
 
         getCommand("seller").setExecutor(new Seller());
         Bukkit.getPluginManager().registerEvents(new MainMenu(), this);
+        UtilSlots.getNoActiveList();
+        UtilSlots.getActiveListSlots();
     }
 
     @Override
