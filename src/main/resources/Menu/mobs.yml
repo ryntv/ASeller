@@ -1,0 +1,9 @@
+idMenu: category
+displayName: "Ресурсы с мобов"
+commandOpen: mob
+permissionMenu: none
+size: 54
+
+category:
+  idCategory: mobs
+  slots: 10-20

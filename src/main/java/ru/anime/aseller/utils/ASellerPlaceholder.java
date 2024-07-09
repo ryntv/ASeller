@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import ru.anime.aseller.ASeller;
 import ru.anime.aseller.GUIMenu.MainMenu;
+import ru.anime.aseller.commands.CommandMenu;
 
 public class ASellerPlaceholder extends PlaceholderExpansion {
 
@@ -35,11 +36,7 @@ public class ASellerPlaceholder extends PlaceholderExpansion {
     public String onPlaceholderRequest(Player player, String identifier) {
 
         if (identifier.startsWith("pay")) {
-            String formatted = String.valueOf(MainMenu.getPay_count(player));
-            if (formatted.endsWith(".0")) {
-                formatted = formatted.substring(0, formatted.length() - 2);
-            }
-          return formatted;
+
 
         }
         if (identifier.startsWith("next_")) {

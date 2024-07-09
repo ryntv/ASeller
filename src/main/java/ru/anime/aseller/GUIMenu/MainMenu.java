@@ -24,13 +24,18 @@ import static ru.anime.aseller.utils.Hex.setPlaceholders;
 public class MainMenu implements Listener {
     static Map<UUID, Double> pay_count = new HashMap<>();
     Map<Material, Double> count_material = new HashMap<>();
+    static String displayName = ASeller.getCfg().getString(Hex.hex("displayNameMenu"));
 
     public static void openSellerMenu(Player player) {
         // Создание уникального инвентаря для каждого игрока
-        Inventory sellerMenu = Bukkit.createInventory(player, 54, "Скупщик");
+
+
+
+        assert displayName != null;
+        Inventory sellerMenu = Bukkit.createInventory(player, 54, Hex.hex(displayName));
 
         // Пример добавления предметов в инвентарь
-        ItemStack item2 = new ItemStack(Material.GOLDEN_APPLE);
+        ItemStack item2 = new ItemStack(Material.getMaterial(ASeller.getCfg().getString("material_button_sell")));
         ItemMeta itemMeta = item2.getItemMeta();
         itemMeta.getPersistentDataContainer().set(new NamespacedKey(ASeller.getInstance(), "num"), PersistentDataType.INTEGER, 5);
         pay_count.put(player.getUniqueId(), 0d);
@@ -47,7 +52,7 @@ public class MainMenu implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getView().getTitle().equals("Скупщик")) { // Проверяем по названию вашего инвентаря
+        if (event.getView().getTitle().equals(Hex.hex(displayName))) { // Проверяем по названию вашего инвентаря
             Inventory clickedInventory = event.getClickedInventory();
             Player player = (Player) event.getWhoClicked();
 
@@ -57,6 +62,22 @@ public class MainMenu implements Listener {
                 if (event.isShiftClick()) {
                     // Проверяем, что клик был сделан в инвентаре игрока
                     if (clickedInventory == player.getInventory()) {
+                        // Проверка, попал ли предмет в запрещённые слоты
+                        ItemStack currentItem = event.getCurrentItem();
+                        if (currentItem != null) {
+                            Inventory topInventory = event.getView().getTopInventory();
+                            int firstEmptySlot = topInventory.firstEmpty();
+
+                            // Если первый пустой слот находится в запрещённой зоне
+                            for (Integer item : UtilSlots.noActiveListSlots) {
+                                if (Objects.equals(firstEmptySlot, item)) {
+                                    event.setCancelled(true); // Отменяем событие
+                                    player.updateInventory(); // Обновляем инвентарь игрока
+                                    return; // Выходим из метода
+                                }
+                            }
+                        }
+
                         Bukkit.getScheduler().runTaskLater(ASeller.getInstance(), () -> {
                             checkInventory(player, event.getView().getTopInventory());
                         }, 1L); // Задержка в 1 тик
@@ -70,10 +91,9 @@ public class MainMenu implements Listener {
                         checkInventory(player, clickedInventory);
                     }, 1L); // Задержка в 1 тик
                 }
-
                 for (Integer item : UtilSlots.noActiveListSlots) {
-                    if (Objects.equals(slot, item)){
-                        event.setCancelled(true); // Отменяем событие, если в эти слоты пытаются перетащить предметы
+                    if (Objects.equals(slot, item)) {
+                        event.setCancelled(true); // Отменяем событие, чтобы предметы нельзя было взять из указанных слотов
                         player.updateInventory(); // Обновляем инвентарь игрока, чтобы предметы не отображались неправильно
                     }
                 }
@@ -83,7 +103,6 @@ public class MainMenu implements Listener {
                     } else {
                         player.sendMessage(Hex.hex(Objects.requireNonNull(ASeller.getCfg().getString("messageItemsDeficit"))));
                     }
-
                 }
             }
         }
@@ -106,7 +125,7 @@ public class MainMenu implements Listener {
 
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
-        if (event.getView().getTitle().equals("Скупщик")) { // Проверяем по названию вашего инвентаря
+        if (event.getView().getTitle().equals(Hex.hex(displayName))) { // Проверяем по названию вашего инвентаря
             Inventory topInventory = event.getView().getTopInventory();
             if (event.getInventory().equals(topInventory)) {
                 Bukkit.getScheduler().runTaskLater(ASeller.getInstance(), () -> {
@@ -114,9 +133,11 @@ public class MainMenu implements Listener {
                 }, 1L); // Задержка в 1 тик
             }
             for (Integer slot : event.getRawSlots()) {
-                if (UtilSlots.noActiveListSlots.contains(slot)) {
-                    event.setCancelled(true); // Отменяем событие, если в эти слоты пытаются перетащить предметы
-                    return;
+                for (Integer item : UtilSlots.noActiveListSlots) {
+                    if (Objects.equals(slot, item)) {
+                        event.setCancelled(true); // Отменяем событие, если в эти слоты пытаются перетащить предметы
+                        return;
+                    }
                 }
             }
         }
@@ -124,7 +145,7 @@ public class MainMenu implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (event.getView().getTitle().equals("Скупщик")) { // Проверяем по названию инвентаря
+        if (event.getView().getTitle().equals(Hex.hex(displayName))) { // Проверяем по названию инвентаря
             Inventory inventory = event.getInventory();
             Player player = (Player) event.getPlayer();
 
@@ -159,7 +180,7 @@ public class MainMenu implements Listener {
     private void checkInventory(Player player, Inventory inventory) {
         pay_count.put(player.getUniqueId(), 0d);
 
-         Map<String, Object> test = ASeller.getCfg().getConfigurationSection("priseItem").getValues(false);
+        Map<String, Object> test = ASeller.getCfg().getConfigurationSection("priseItem").getValues(false);
         test.forEach((key, value) -> count_material.put(Material.getMaterial(key), (Double) value));
 
         for (Integer slot : UtilSlots.activeListSlots) {

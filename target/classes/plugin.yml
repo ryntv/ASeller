@@ -3,6 +3,5 @@ version: '0.1.1-beta'
 main: ru.anime.aseller.ASeller
 api-version: '1.16'
 commands:
-  seller:
-    aliases:
-      - seller
+  dummyCommand:
+    description: "A placeholder command"

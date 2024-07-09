@@ -1,37 +1,31 @@
-# Ищем дюпы
-
-# Название кнопки продажи
-display_button_sell: " "
-
-# Описание кнопки продажи
-lore_button_sell:
-  - '&fНажмите чтобы сдать все предметы'
-  - '&fПредметов на сумму: &e%seller_pay%'
-
-# Позиция кнопки продажи
-position_button_sell: 49
-
-# Какие слоты будут использоваться для добавления предметов
-activeSlots:
-  - 0-44
-
-# Какие слоты не будут использоваться
-noActiveSlots:
-  - 45
-  - 46
-  - 47
-  - 48
-  - 49
-  - 50
-  - 51
-  - 52
-  - 53
-# Предмет и его цена
-priseItem:
-  STONE: 50.0
-  DIAMOND: 100.0
+commandOpenSeller:
+  - "b"
+  - "sell"
+  - "aseller"
 
 # Сообщение об получение денег
 messageSale: "&fВы получили &e%seller_pay%&f$"
 # Сообщение если в скупщике нет предметов для продажи
 messageItemsDeficit: "&fУ вас нет предметов для продажи"
+#########################[Скупщик]#######################
+sellerMenu: seller
+#######################[Авто-скупка]#####################
+loreAction:
+  - " "
+  - "Товар продаётся автоматически"
+  - "Обычная цена: %default_prise%"
+  - "Текущая цена: %now_prise%"
+loreNoAction:
+  - " "
+  - "Товар не продаётся автоматически"
+  - "Обычная цена: %default_prise%"
+  - "Текущая цена: %now_prise%"
+menu:
+  seller:
+    path: Menu/seller.yml
+  category:
+    path: Menu/category.yml
+  mobs:
+    path: Menu/mobs.yml
+  mine:
+    path: Menu/mine.yml

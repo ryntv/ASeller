@@ -1,0 +1,17 @@
+idMenu: seller
+displayName: "Скупщик"
+permissionMenu: none
+size: 54
+
+sellerZone:
+  material: AIR
+  slot: 0-44
+  command: [seller_zone]
+buttonSell:
+  material: GOLDEN_APPLE
+  slots: 49
+  displayButton: " "
+  loreButton:
+    - '&fНажмите чтобы сдать все предметы'
+    - '&fПредметов на сумму: &e%seller_pay%'
+  command: [sell]

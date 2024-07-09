@@ -34,19 +34,13 @@ public class UtilSlots {
 
     public static List<Integer> getNoActiveList() {
         noActiveListSlots = sortListSlots(ASeller.getCfg().getStringList("noActiveSlots"));
-        System.out.println("NO_ACTIVE");
-        for (int number : noActiveListSlots) {
-            System.out.println(number);
-        }
+
         return noActiveListSlots;
     }
 
     public static List<Integer> getActiveListSlots() {
         activeListSlots = sortListSlots(ASeller.getCfg().getStringList("activeSlots"));
-        System.out.println("ACTIVE");
-        for (int number : activeListSlots) {
-            System.out.println(number);
-        }
+
         return activeListSlots;
     }
 }
