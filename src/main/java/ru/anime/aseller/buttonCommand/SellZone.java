@@ -39,11 +39,13 @@ public class SellZone {
         }
 
         // Логирование суммы
-        System.out.println("Сумма: " + pay_count.get(playerUUID));
+     //   System.out.println("Сумма: " + pay_count.get(playerUUID));
+        if (pay_count.get(playerUUID) > 0){
+            player.sendMessage(("Вы успешно продали предметов на: "+ pay_count.get(playerUUID) + "$").replaceAll("\\.0$", ""));
+        }
 
         // Депозит игрока
         ASeller.getInstance().economy.depositPlayer(player, pay_count.get(playerUUID));
-        player.sendMessage(Hex.hex(setPlaceholders(player, "Вы продали предметы")));
 
         // Сброс значения
         pay_count.put(playerUUID, 0d);
@@ -74,6 +76,7 @@ public class SellZone {
         List<String> lore = button.getLoreButton().stream()
                 .map(s -> Hex.hex(setPlaceholders(player, s)))
                 .map(s -> s.replace("%seller_pay%", String.valueOf(pay_count.get(playerUUID))))
+                .map(s -> s.replaceAll("\\.0$", ""))
                 .toList();
 
         itemMeta.setLore(lore);

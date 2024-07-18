@@ -1,14 +1,27 @@
+# Версия бета-0.1.2-beta
+
+
 commandOpenSeller:
   - "b"
   - "sell"
   - "aseller"
 
-# Сообщение об получение денег
-messageSale: "&fВы получили &e%seller_pay%&f$"
-# Сообщение если в скупщике нет предметов для продажи
-messageItemsDeficit: "&fУ вас нет предметов для продажи"
+
 #########################[Скупщик]#######################
-sellerMenu: seller
+# укажите название для меню скупки
+sellerMenu: "seller"
+
+menu:
+  seller:
+    path: Menu/seller.yml
+  category:
+    path: Menu/category.yml
+  mobs:
+    path: Menu/mobs.yml
+  mine:
+    path: Menu/mine.yml
+
+# в данный момент все что написано ниже не работает
 #######################[Авто-скупка]#####################
 loreAction:
   - " "
@@ -20,12 +33,4 @@ loreNoAction:
   - "Товар не продаётся автоматически"
   - "Обычная цена: %default_prise%"
   - "Текущая цена: %now_prise%"
-menu:
-  seller:
-    path: Menu/seller.yml
-  category:
-    path: Menu/category.yml
-  mobs:
-    path: Menu/mobs.yml
-  mine:
-    path: Menu/mine.yml
+

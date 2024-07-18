@@ -8,12 +8,11 @@ import ru.anime.aseller.ASeller;
 import ru.anime.aseller.buttonCommand.SellZone;
 import ru.anime.aseller.menuSetting.Menu;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class Seller implements CommandExecutor {
     public static Map<Player, CommandMenu> openMenus = new HashMap<>();
+    public static List<String> nameMenu = new ArrayList<>();
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -38,7 +37,7 @@ public class Seller implements CommandExecutor {
             }
 
             // Создаём новый экземпляр CommandMenu для игрока
-            commandMenu = new CommandMenu(menu, player);
+            commandMenu = new CommandMenu(menu, player, menu.getDisplayNameMenu());
             openMenus.put(player, commandMenu);
         }
 

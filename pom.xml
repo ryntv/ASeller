@@ -6,7 +6,7 @@
 
   <groupId>ru.anime</groupId>
   <artifactId>ASeller</artifactId>
-  <version>0.1.1-beta</version>
+  <version>0.1.2-beta</version>
   <packaging>jar</packaging>
 
   <name>ASeller</name>
@@ -105,5 +105,6 @@
           <version>1.29</version>
           <scope>provided</scope>
       </dependency>
+
   </dependencies>
 </project>

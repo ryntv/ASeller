@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import ru.anime.aseller.ASeller;
+import ru.anime.aseller.buttonCommand.Message;
 import ru.anime.aseller.buttonCommand.SellZone;
 import ru.anime.aseller.menuSetting.ButtonMenu;
 import ru.anime.aseller.menuSetting.Menu;
@@ -38,10 +39,13 @@ public class CommandMenu implements Listener {
     private final Map<Integer, String> buttonSlots = new HashMap<>();
     private static final Map<UUID, Double> pay_count = new HashMap<>();
 
-    public CommandMenu(Menu mainMenu, Player player) {
+    public CommandMenu(Menu mainMenu, Player player, String nameMenu) {
         this.mainMenu = mainMenu;
         this.player = player;
-
+        if (!Seller.nameMenu.contains(nameMenu)){
+            Bukkit.getPluginManager().registerEvents(this, ASeller.getInstance());
+            Seller.nameMenu.add(nameMenu);
+        }
         if (mainMenu == null) {
             ASeller.getInstance().getLogger().warning("MainMenu is null");
         } else {
@@ -53,7 +57,7 @@ public class CommandMenu implements Listener {
         if (sellerMenu == null) {
             sellerMenu = Bukkit.createInventory(player, mainMenu.getSize(), Hex.hex(mainMenu.getDisplayNameMenu()));
             createMenuContents();
-            Bukkit.getPluginManager().registerEvents(this, ASeller.getInstance());
+
             ASeller.getInstance().getLogger().info("Listener registered for: " + player.getName());
         } else {
             updateMenuContents();
@@ -88,12 +92,10 @@ public class CommandMenu implements Listener {
 
             if (itemMeta != null) {
                 itemMeta.getPersistentDataContainer().set(new NamespacedKey(ASeller.getInstance(), "num"), PersistentDataType.INTEGER, 5);
-                getPay_count().forEach((key, value) -> {
-                    System.out.println("Вывод: " + key + " " + value);
-                });
+
                 List<String> lore = button.getLoreButton().stream()
                         .map(s -> Hex.hex(setPlaceholders(player, s)))
-                        .map(s -> s.replace("%seller_pay%", String.valueOf(getPay_count().get(player.getUniqueId()))))
+                        .map(s -> s.replace("%seller_pay%", "0"))
                         .toList();
 
                 itemMeta.setLore(lore);
@@ -106,6 +108,12 @@ public class CommandMenu implements Listener {
             } else if (button.getCommand().contains("[sell]")) {
                 buttonSlots.put(button.getSlotButton(), "[sell]");
             }
+            button.getCommand().forEach(vault -> {
+                if(vault.startsWith("[open_menu]")){
+                    buttonSlots.put(button.getSlotButton(), vault);
+                }
+            });
+
 
             int slot = button.getSlotButton();
 
@@ -185,11 +193,22 @@ public class CommandMenu implements Listener {
                 player.updateInventory();
             }
 
+
             if (buttonSlots.containsKey(slot)) {
                 if ("[sell]".equals(buttonSlots.get(slot))) {
                     Inventory topInventory = event.getView().getTopInventory();
                     SellZone.sellItem(player, activeListSlots, topInventory, ASeller.getInstance().getCountMaterial(), pay_count);
                     System.out.println("Игрок: " + player.getName() + " вызвал команду sell");
+                } else if (buttonSlots.get(slot).startsWith("[open_menu]")) {
+                    String nameMenu = buttonSlots.get(slot).substring("[open_menu]".length()).trim();
+                    System.out.println(nameMenu);
+
+                    // Закрываем текущее меню и удаляем из карты openMenus
+                    player.closeInventory();
+                    openMenus.remove(player);
+
+                    // Открываем новое меню
+                    OpenMenu.openMenu(nameMenu, player);
                 }
             }
         }
@@ -240,23 +259,23 @@ public class CommandMenu implements Listener {
 
                 unregister();
 
-                openMenus.remove(player);
-                if (inventory.equals(sellerMenu)) {
-                    sellerMenu = null;
-                }
+             //   openMenus.remove(player);
+            //    if (inventory.equals(sellerMenu)) {
+             //       sellerMenu = null;
+             //   }
                 if (getPay_count().containsKey(player.getUniqueId())) {
                     clearPayCount(player.getUniqueId());
                 }
 
                 Bukkit.getScheduler().runTaskLater(ASeller.getInstance(), player::updateInventory, 1L);
                 ASeller.getInstance().getLogger().info("Inventory closed, updating player inventory...");
+
             }
         }
     }
 
     public void unregister() {
-        HandlerList.unregisterAll(this);
-        ASeller.getInstance().getLogger().info("Listener unregistered for: " + player.getName());
+
     }
 
     public boolean isActive() {
