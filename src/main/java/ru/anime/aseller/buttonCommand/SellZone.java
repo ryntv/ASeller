@@ -1,91 +1,64 @@
 package ru.anime.aseller.buttonCommand;
 
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 import ru.anime.aseller.ASeller;
-import ru.anime.aseller.menuSetting.ButtonMenu;
-import ru.anime.aseller.utils.Hex;
 
-import java.util.*;
-
-import static ru.anime.aseller.utils.Hex.setPlaceholders;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Supplier;
 
 public class SellZone {
 
-    public static void sellItem(Player player, List<Integer> activeListSlots, Inventory inventory, Map<Material, Double> countMaterial, Map<UUID, Double> pay_count) {
-        UUID playerUUID = player.getUniqueId();
 
-        // Устанавливаем начальное значение для игрока
-        pay_count.put(playerUUID, 0d);
+    private static Map<UUID, Double> countPlayer = new HashMap<>();
+    public static void checkItem(List<ItemStack> itemStacks, Map<String, Double> prise, Player player) {
 
-        for (Integer slot : activeListSlots) {
-            ItemStack item = inventory.getItem(slot);
+        countPlayer.remove(player.getUniqueId());
 
-            if (item != null && item.getType() != Material.AIR) {
-                if (countMaterial.containsKey(item.getType())) {
-                    Double count = pay_count.get(playerUUID);
-                    count += countMaterial.get(item.getType()) * item.getAmount();
-                    pay_count.put(playerUUID, count);
-
-                    // Удаление предметов из инвентаря
-                    inventory.setItem(slot, null);
-                }
+        Map<Material, Double> materialPrise = new HashMap<>();
+        prise.forEach((key, vault) -> {
+            Material material = Material.valueOf(key.toUpperCase());
+            materialPrise.put(material, vault);
+        });
+        itemStacks.forEach(item ->{
+            ASeller.getInstance().getLogger().info(item.getType() + " : " +item.getAmount());
+        });
+        double sum = 0d;
+        for (ItemStack itemStack : itemStacks) {
+            if (materialPrise.containsKey(itemStack.getType())) {
+                sum += materialPrise.get(itemStack.getType()) * itemStack.getAmount();
             }
         }
-
-        // Логирование суммы
-     //   System.out.println("Сумма: " + pay_count.get(playerUUID));
-        if (pay_count.get(playerUUID) > 0){
-            player.sendMessage(("Вы успешно продали предметов на: "+ pay_count.get(playerUUID) + "$").replaceAll("\\.0$", ""));
-        }
-
-        // Депозит игрока
-        ASeller.getInstance().economy.depositPlayer(player, pay_count.get(playerUUID));
-
-        // Сброс значения
-        pay_count.put(playerUUID, 0d);
-    }
-
-    public static void checkInventory(Player player, Inventory inventory, Map<Material, Double> countMaterial, ButtonMenu button, List<Integer> activeListSlots, Map<UUID, Double> pay_count) {
-        //   System.out.println("Метод checkInventory вызван");
-        UUID playerUUID = player.getUniqueId();
-
-        // Устанавливаем начальное значение для игрока
-        pay_count.put(playerUUID, 0d);
-
-        for (Integer slot : activeListSlots) {
-            ItemStack item = inventory.getItem(slot);
-
-            if (item != null && item.getType() != Material.AIR) {
-                if (countMaterial.containsKey(item.getType())) {
-                    Double count = pay_count.get(playerUUID);
-                    count += countMaterial.get(item.getType()) * item.getAmount();
-                    pay_count.put(playerUUID, count);
-                }
-            }
-        }
-
-        ItemStack item2 = new ItemStack(button.getMaterialButton());
-        ItemMeta itemMeta = item2.getItemMeta();
-        itemMeta.getPersistentDataContainer().set(new NamespacedKey(ASeller.getInstance(), "num"), PersistentDataType.INTEGER, 5);
-        List<String> lore = button.getLoreButton().stream()
-                .map(s -> Hex.hex(setPlaceholders(player, s)))
-                .map(s -> s.replace("%seller_pay%", String.valueOf(pay_count.get(playerUUID))))
-                .map(s -> s.replaceAll("\\.0$", ""))
-                .toList();
-
-        itemMeta.setLore(lore);
-        itemMeta.setDisplayName(button.getDisplayNameButton());
-
-        item2.setItemMeta(itemMeta);
-        inventory.setItem(button.getSlotButton(), item2);
+        countPlayer.put(player.getUniqueId(), sum);
 
     }
 
+    public static Double getCountPlayer(UUID uuid){
+        return countPlayer.get(uuid);
+    }
+    public static void clearPlayer(UUID uuid){
+        countPlayer.remove(uuid);
 
+    }
+    public static String getCountPlayerString(UUID uuid, Integer residue) {
+        Double value = countPlayer.get(uuid);
+        if (value == null) {
+            return "0"; // Или другое значение по умолчанию
+        }
+
+        // Создаем BigDecimal из значения, чтобы можно было легко округлять
+        BigDecimal bd = new BigDecimal(value);
+
+        // Округляем до необходимого количества знаков после запятой
+        bd = bd.setScale(residue, RoundingMode.DOWN); // RoundingMode.DOWN убирает остаток
+
+        // Возвращаем строковое представление числа
+        return bd.toPlainString(); // Используем toPlainString, чтобы избежать научной нотации
+    }
 }

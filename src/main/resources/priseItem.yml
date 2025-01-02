@@ -1,21 +1,5 @@
-item:
-  rotten_flesh:
-    material: ROTTEN_FLESH
-    displayName: "Гнилая плоть"
-    prise: 100
-    idCategory: "mobs"
-  bone:
-    material: BONE
-    displayName: "Кость"
-    prise: 150
-    idCategory: mobs
-  iron_ingot:
-    material: IRON_INGOT
-    displayName: "Железный слиток"
-    prise: 200
-    idCategory: mine
-  gold_ingot:
-    material: GOLD_INGOT
-    displayName: "Золотой слиток"
-    prise: 300
-    idCategory: mine
+# обычная стоимость предметов
+rotten_flesh: 100
+bone: 150
+iron_ingot: 200
+gold_ingot: 300
